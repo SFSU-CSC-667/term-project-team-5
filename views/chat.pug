@@ -1,0 +1,7 @@
+#chat-container
+  #chat-box
+    ul#messages
+  form#chat-form(method='post')
+    input#chat-input.submit_on_enter(type='text', name='chat-text', autocomplete='off')
+    input#sendbutton.button(type='button', onclick='sendMessage()', value='Send')
+    input(style=" visibility: hidden;" id="target" value=USERNAME)

@@ -126,4 +126,3 @@ INSERT INTO cards(card_id, rank, suit) VALUES ( 49,10,'D');
 INSERT INTO cards(card_id, rank, suit) VALUES ( 50,11,'D');
 INSERT INTO cards(card_id, rank, suit) VALUES ( 51,12,'D');
 INSERT INTO cards(card_id, rank, suit) VALUES ( 52,13,'D');
-

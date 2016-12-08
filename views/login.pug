@@ -1,0 +1,31 @@
+doctype html
+//
+  To change this license header, choose License Headers in Project Properties.
+  To change this template file, choose Tools | Templates
+  and open the template in the editor.
+html
+  head
+    title Login
+    link(rel='stylesheet', type='text/css', href='css/style.css')
+    link(rel='stylesheet', type='text/css', href='css/font-awesome.css')
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    script(type='text/javascript').
+      var users = !{JSON.stringify(errormsg)}
+      if(users != "undefined") alert("Incorrect Username/password")
+  body
+    .container
+      img(src='img/logo.jpg')
+      form(action='login', method='POST')
+        .form-input
+          input(type='text', name='username', placeholder='Username')
+        .form-input
+          input(type='password', name='password', placeholder='Password')
+        input.btn-login(type='submit', name='submit', value='LOGIN')
+        br
+        a(href='register') Create a new account
+	
+    div
+
+
+    

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Registration</title>
+        <link rel ="stylesheet" type="text/css" href="../css/style.css">
+        <link rel ="stylesheet" type="text/css" href="../css/font-awesome.css">
+        <meta charset="UTF-8">
+		<script src="js/validateRegister.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div class="container" id="register">
+            <img src="../img/logo.jpg">
+            <form name="register" action="register" method="POST" onsubmit="return validateForm()">
+                <div class="form-input">
+                    <input type="text" id="firstname" name="firstname" placeholder="First name" required>
+                </div>
+				 <div class="form-input">
+                    <input type="text" id="lastname" name="lastname" placeholder="Last name" required>
+                </div>
+				 <div class="form-input">
+                    <input type="email" id="email" name="email" placeholder="Email id">
+                </div>
+                <div class="form-input">
+                    <input type="text" id="username" name="username" placeholder="Username" required>
+                </div>
+                <div class="form-input">
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                </div>
+                <div class="form-input">
+                    <input type="password" id="confirm" name="confirm" placeholder="Confirm Password" required>
+                </div>
+                <input type="submit" name ="submit" value="CREATE ACCOUNT" class="btn-login"><br>
+            </form>
+        </div>
+    </body>
+</html>
