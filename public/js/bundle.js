@@ -17,7 +17,14 @@ const intializeSocket = () => {
 }
 
 const displayWait = (data) => {
-  // $('#gameArea').hide()
+ $('#gameArea').hide();
+ var form = document.getElementById("waitingArea");
+ var alertDiv = document.createElement("DIV");
+ var alertText = document.createTextNode("Welcome !\n Waiting for other player to join.");
+ alertDiv.classList.add("alert","alert-danger", "text-center");
+ alertDiv.setAttribute("role", "alert");
+ alertDiv.appendChild(alertText);
+ form.appendChild(alertDiv);
 }
 
 
@@ -25,14 +32,15 @@ $(document).ready(function() {
 
   addLogout()
   bindEvents()
-  intializeSocket()
 
   socket.emit( PLAYER_JOINED, {gameId: game.gameId} )
 
   socket.on( WELCOME, (data) => {
     game.playerId = data.playerId;
   })
-
+  
+  intializeSocket()
+  
   socket.on(STARTGAME, (json) => {
     gameJSON = json
     console.log(json);
@@ -75,6 +83,8 @@ const emitUpdate = () => {
 
 const updateGame = (json) => {
 
+  $('#gameArea').show();
+  $('#waitingArea').hide();
   gameJSON = json
   var playerHand = ""
   var opponentHand = ""

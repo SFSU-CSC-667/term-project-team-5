@@ -8,22 +8,23 @@ block head_content
 
 block content
   include navbar.pug
+  #gameArea
+   #game_space.col-md-9.container-fluid.bg-1.text-center
+     p Opponent hand:
+     br
+     #OpponentHand
+     p Deck:
+     #Deck
+     p Discard Pile:
 
-  #game_space.col-md-9.container-fluid.bg-1.text-center
-    p Opponent hand:
-    br
-    #OpponentHand
-    p Deck:
-    #Deck
-    p Discard Pile:
+     #DiscardPile
+     p Player hand:
+     button#meld.btn.btn-warning.btn-sm.buy-button(type='submit') Meld/layoff
+     span
+     button#cancel.btn.btn-warning.btn-sm.buy-button(type='submit') Cancel
+     br
+     #PlayerHand
 
-    #DiscardPile
-    p Player hand:
-    button#meld.btn.btn-warning.btn-sm.buy-button(type='submit') Meld/layoff
-    span
-    button#cancel.btn.btn-warning.btn-sm.buy-button(type='submit') Cancel
-    br
-    #PlayerHand
-
-  #chat.col-md-3
-    include chat.pug
+   #chat.col-md-3
+     include chat.pug
+  #waitingArea

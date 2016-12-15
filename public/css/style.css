@@ -470,6 +470,14 @@ p {font-size: 16px;}
     padding-bottom: 15px;
 }
 
+#waitingArea
+{
+     background-color: #1abc9c; /* Green */
+    color: #ffffff;
+    text-align: center;
+    padding-top: 15%;
+    padding-bottom: 25%;
+}
 
 #nav {
     padding-top: 5px;
