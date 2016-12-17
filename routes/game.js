@@ -8,10 +8,11 @@ module.exports = function(db, io) {
   const dbjs = require('./database')
   const database = new dbjs(db)
 
-  const { PLAYER_JOINED, WELCOME, WITHDRAW_CARD, TRANSFER_TO_HAND, WAIT, STARTGAME, UPDATEGAMELIST, UPDATE_SERVER, UPDATE_CLIENT, CARDS_MELDED , SUCCESS, DISCARD_CARD }
+  const { PLAYER_JOINED, WELCOME, WITHDRAW_CARD, TRANSFER_TO_HAND, WAIT, STARTGAME, UPDATEGAMELIST, UPDATE_SERVER, UPDATE_CLIENT, CARDS_MELDED , SUCCESS, DISCARD_CARD, SUCCESSFUL_MELD, FAILED_MELD }
     = require('../constants/events')
 
   const MAX_PLAYERS = 2;
+  const NUM_CARDS_IN_SUIT = 13;
 
   let playerId;
   let username;
@@ -79,6 +80,76 @@ module.exports = function(db, io) {
       io.of('/lobby').emit( UPDATEGAMELIST, listGameIds )
     })
   }
+  
+  function isLegalMeld(tempMeldCards) {
+    var sortedMeldCards = tempMeldCards.sort();
+    var length = sortedMeldCards.length;
+    var isLegal = true;
+
+    //check if in range
+     if(length > 1 &&
+        //checks that it is not a legal same suit meld
+        (sortedMeldCards[length-1]%NUM_CARDS_IN_SUIT != sortedMeldCards[0]%NUM_CARDS_IN_SUIT)) 
+    {
+      if(sortedMeldCards[length-1] >= sortedMeldCards[0]+NUM_CARDS_IN_SUIT) {
+        console.log("Checking Legal Meld: NOT IN RANGE");
+        return false;
+      }
+    }
+
+    //if length is greater than 2 then do these two checks, else check layoff
+    //check if in order: 1s,2s,3s,4s..etc
+    for(let i = 0; i<length-1; i++) {
+      if(!isInOrderAndSameSuit(sortedMeldCards[i], sortedMeldCards[i+1])) {
+        console.log("NOT IN ORDER");
+        isLegal = false;
+      }
+    }
+    
+    //check if same rank: 1s,1h,1d,1c..etc
+    isLegal = true;
+    for(let j = 0; j<length-1; j++) {
+      if(!isSameRank(sortedMeldCards[j], sortedMeldCards[j+1])) {
+        console.log("NOT SAME RANK");
+        isLegal = false;
+      }
+    }
+
+    console.log("Checking Legal Meld: IS LEGAL");
+    return isLegal;
+  }
+
+  function isInOrderAndSameSuit(card1, card2) {
+    if(isSameSuit(card1, card2)) {
+      if((card1 == card2+1) || (card1 == card2-1)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function isSameRank(card1, card2) {
+    if((card1 % NUM_CARDS_IN_SUIT) == (card2 % NUM_CARDS_IN_SUIT)) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  function isSameSuit(card1, card2) {
+    //check same suit
+    if((card1/NUM_CARDS_IN_SUIT) == (card2/NUM_CARDS_IN_SUIT)) {
+      //check edge case: (13, 26, 39, 52)/13 = 1, 2, 3, 4 but do not belong in that suit
+      if(card1%NUM_CARDS_IN_SUIT == 0 || card2%NUM_CARDS_IN_SUIT == 0) {
+        return false;
+      }
+      
+      return true;
+    }
+    
+    return false;
+  }
 
   /* Socket Operations */
   const game_io = io.of('/game')
@@ -141,6 +212,7 @@ module.exports = function(db, io) {
 
         json = {
           gameId : gameId,
+          meldId : 0,
           deck : deckArray,
           discard_pile : dicardPileArray,
           playerHands : {
@@ -149,7 +221,7 @@ module.exports = function(db, io) {
           },
           turn : players[0].player_id,
 
-          melds : []
+          melds : {}
         }
         //rajat
         //database.addGameStateToDb(json)
@@ -158,8 +230,6 @@ module.exports = function(db, io) {
         return json
       });
     }
-
-
 
     const updateGame = (json) => {
       //rajat
@@ -192,7 +262,23 @@ module.exports = function(db, io) {
 
       console.log('server got discard request');
       updateGame(updatedJson)
-
+    }
+    
+    const cardsMelded = (gameJSON, meldJSON) => {
+      if(isLegalMeld(meldJSON.melds[meldJSON.meldId])) {
+        console.log("IS LEGAL MELD");
+        //update to db
+        //increment meldId
+        meldJSON.meldId++;
+        game_io.to(meldJSON.gameId.toString()).emit(SUCCESSFUL_MELD, meldJSON);
+      }
+      else {
+        //why does gameJSON have the melded cards? shouldn't onlymeldJSON have it?
+        console.log("IS NOT LEGAL MELD");
+        gameJSON.melds[gameJSON.meldId].length = 0; //clear last meld
+        console.log(gameJSON.melds[gameJSON.meldId].toString());
+        game_io.to(gameJSON.gameId.toString()).emit(FAILED_MELD, gameJSON);
+      }
     }
     /* End Game Functions */
 
@@ -201,8 +287,7 @@ module.exports = function(db, io) {
     socket.on(UPDATE_CLIENT, updateGame)
     socket.on(DISCARD_CARD, cardDiscarded)
     socket.on(WITHDRAW_CARD, withdrawCard)
-    socket.on(CARDS_MELDED, updateGame)
-
+    socket.on(CARDS_MELDED, cardsMelded)
 
     socket.on('disconnect', () => {
       console.log("user disconnected from /game namespace");
