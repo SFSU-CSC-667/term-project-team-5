@@ -13,27 +13,32 @@ a {
 #availableGames  {
   margin-right: 15px;
   margin-left: 15px;
-  color: black;
-  border: 2px solid #ff8c00;
-  background-color: white;
-  border-radius: 2px;
+  border: 10px solid #ff8c00;
+  background-color: #fffacd;
+  border-radius: 5px;
   height: 100%;
+  font-size: 20px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #gamesListContainer {
   margin-right: 15px;
   margin-left: 15px;
   color: black;
-  border: 2px solid #ff8c00;
+  border: 5px solid #ff8c00;
   background-color: white;
-  border-radius: 5px;
+  border-radius: 1px;
   height: 250px;
+  overflow-y: scroll;
+}
+
+#gamesListContainer li:nth-child(odd) {
+  background: #fffacd;
 }
 
 #chat-container {
   width: 100%;
   height: 250px;
-  color: black;
 }
 
 #chat-box {
@@ -41,7 +46,7 @@ a {
   height: 100%;
   margin-right: 15px;
   margin-left: 15px;
-  border: 2px solid #ff8c00;
+  border: 5px solid #ff8c00;
   background-color: white;
   border-radius: 15px;
   overflow-y: scroll;
@@ -50,7 +55,7 @@ a {
 }
 
 #chat{
-    overflow-y: scroll;
+  overflow-y: scroll;
 }
 
 #messages li:nth-child(odd) {
@@ -523,8 +528,9 @@ p {font-size: 16px;}
 }
 
 #meld_area{
-    padding-left: 10%;
+  padding-left: 10%;
 }
+
 a.disabled{ 
    color:gray; 
-   }
+}
