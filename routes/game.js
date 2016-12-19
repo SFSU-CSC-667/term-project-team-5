@@ -146,14 +146,11 @@ module.exports = function(db, io) {
     return false;
   }
 
+  //edge cases: 11, 12, 13... 24,25,26 ...
   function isSameSuit(card1, card2) {
-    //check same suit
-    if(Math.floor(card1/NUM_CARDS_IN_SUIT) == Math.floor(card2/NUM_CARDS_IN_SUIT)) {
-      //check edge case: (13, 26, 39, 52)/13 = 1, 2, 3, 4 but do not belong in that suit
-      if(card1%NUM_CARDS_IN_SUIT == 0 || card2%NUM_CARDS_IN_SUIT == 0) {
-        return false;
-      }
-
+    //card1-1 to convert from 1-13 to 0-12 scale so that the edge cards (13) will 
+    //be in the same group as 1-12
+    if(Math.floor((card1-1)/NUM_CARDS_IN_SUIT) == Math.floor((card2-1)/NUM_CARDS_IN_SUIT)) {
       return true;
     }
 
