@@ -13,7 +13,14 @@ module.exports = function(db, io) {
 
     if(session.user) {
       let username = session.user;
-      response.render('lobby', { USERNAME: username });
+      database.getTopPlayers(10)
+      .then((playerList) => {
+        database.getPlayerStats(request.session.player_id)
+        .then((playerStats) => {
+          response.render('lobby', { USERNAME: username, topPlayers: playerList, playerStats: playerStats });
+        })
+
+      })
     }
     else {
       response.redirect('/login');

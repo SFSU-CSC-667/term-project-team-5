@@ -82,6 +82,11 @@ module.exports = function(db, io) {
     response.render('rummy_rule');
   });
 
+  //about page
+  router.get('/about', function(request, response) {
+    response.render('about');
+  });
+
 
 
   function checkPlayerExists(request, response)

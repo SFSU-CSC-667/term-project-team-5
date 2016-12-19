@@ -54,12 +54,87 @@ let database = function (db) {
     });
    }
 
-  this.createScoreboard = (playerId) => {
-    return db.none("Insert into scoreboard(player_id, games_won, total_games) values($1, 0, 0)", [playerId])
-    .then ( () => {
-      // response.redirect('/login');
-    })
-  }
+   /* SCOREBOARD Operations */
+   this.createScoreboard = (playerId) => {
+     return db.none("Insert into scoreboard(player_id, games_won, total_games) values($1, 0, 0)", [playerId])
+     .then ( () => {
+       // response.redirect('/login');
+     })
+   }
+
+   this.updateScoreboard = (playersInGame, playerWon) => {
+     playersInGame.forEach((player) => {
+       if(player == playerWon){
+         db.none("Update scoreboard set games_won = games_won + 1, total_games = total_games + 1 where player_id = $1 ", [player])
+         .then (() => {
+
+         })
+         .catch ((err) => {
+           console.log(err);
+         })
+
+       }
+       else {
+         db.none("Update scoreboard set total_games = total_games + 1 where player_id = $1 ", [player])
+         .then (() => {
+
+         })
+         .catch ((err) => {
+           console.log(err);
+         })
+
+       }
+     })
+
+   }
+
+   this.getTopPlayers = (noOfPlayers) => {
+     return db.any("Select p.username, s.games_won from scoreboard s, players p where s.player_id = p.player_id order by s.games_won DESC limit $1 ", [noOfPlayers])
+     .then ((result) => {
+       return result
+     })
+     .catch((err) => {
+       console.log(err);
+     })
+   }
+
+   this.getPlayerStats = (playerId) => {
+     return db.one("Select games_won, total_games from scoreboard where player_id = $1 ", [playerId])
+     .then ((result) => {
+       return result
+     })
+     .catch((err) => {
+       console.log(err);
+     })
+
+   }
+
+   this.getAvailableGames = () => {
+     return db.any("Select game_id from games where is_available = true ")
+     .then ( (result) => {
+       let listGameIds = []
+
+       result.forEach( (value) => {
+         listGameIds.push(value.game_id)
+       })
+
+       return listGameIds
+     })
+     .catch(function(err) {
+       console.log(err)
+     })
+   }
+
+   this.updateAvailableGames = (gameId) => {
+     return db.none("update games set is_available = false where game_id = $1", [gameId])
+     .then (() => {
+       console.log('Removed game ' + gameId + ' from available games');
+     })
+     .catch(function(err) {
+       console.log(err)
+     })
+   }
+
 
   this.getAvailableGames = () => {
     return db.any("Select game_id from games where is_available = true ")

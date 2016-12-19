@@ -81,7 +81,7 @@ module.exports = function(db, io) {
       io.of('/lobby').emit( UPDATEGAMELIST, listGameIds )
     })
   }
-  
+
   const increasingSort = (a, b) => {
     return a-b;
   }
@@ -157,7 +157,7 @@ module.exports = function(db, io) {
 
   //edge cases: 11, 12, 13... 24,25,26 ...
   function isSameSuit(card1, card2) {
-    //card1-1 to convert from 1-13 to 0-12 scale so that the edge cards (13) will 
+    //card1-1 to convert from 1-13 to 0-12 scale so that the edge cards (13) will
     //be in the same group as 1-12
     if(Math.floor((card1-1)/NUM_CARDS_IN_SUIT) == Math.floor((card2-1)/NUM_CARDS_IN_SUIT)) {
       console.log("IS SAME SUIT");
@@ -261,18 +261,20 @@ module.exports = function(db, io) {
 
     const checkPlayerWonTie = (json) => {
 
+      if (json.deck.length == 0) {
+        console.log('TIE');
+        game_io.to(json.gameId.toString()).emit( TIE, { msg: gameMessages.MSG_TIE } )
+        return
+      }
+
+      // let playersInGame = Object.keys(json.playerHands)
       Object.keys(json.playerHands).forEach( (player) => {
         if(json.playerHands[player].length == 0) {
           console.log('WIN');
           game_io.to(json.gameId.toString()).emit( WIN, { playerId: player } )
-          return
+          database.updateScoreboard(Object.keys(json.playerHands), player)
         }
       })
-
-      if (json.deck.length == 0) {
-        console.log('TIE');
-        game_io.to(json.gameId.toString()).emit( TIE, { msg : gameMessages.MSG_TIE } )
-      }
 
     }
 
@@ -311,6 +313,7 @@ module.exports = function(db, io) {
       if(isLegalMeld(meldJSON.melds[meldJSON.layoffId])) {
         console.log("IS LEGAL LAYOFF");
         //update to db
+        //database.addGameState_JSON(meldJSON.gameId, meldJSON)
         game_io.to(meldJSON.gameId.toString()).emit(SUCCESSFUL_MELD, meldJSON);
         game_io.to(json.gameId.toString()).emit(GAME_MESSAGE, {msg: gameMessages.MSG_CARDS_LAYOFF_SUCCESS, turn : gameJSON.turn.toString()})
       }
@@ -331,6 +334,7 @@ module.exports = function(db, io) {
       if(isLegalMeld(meldJSON.melds[meldJSON.meldId])) {
         console.log("IS LEGAL MELD");
         //update to db
+        //database.addGameState_JSON(meldJSON.gameId, meldJSON)
         //increment meldId
         meldJSON.meldId++;
         game_io.to(meldJSON.gameId.toString()).emit(SUCCESSFUL_MELD, meldJSON);
@@ -374,7 +378,7 @@ module.exports = function(db, io) {
         // .then (() => {
         //   broadcastGameList()
         // })
-        
+
          game_io.to(gameId).emit( WAIT, {msg : gameMessages.MSG_DISCONNECT} )
       }
     });

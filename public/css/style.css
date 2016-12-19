@@ -56,6 +56,8 @@ a {
 
 #chat{
   overflow-y: scroll;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 #messages li:nth-child(odd) {
@@ -573,11 +575,68 @@ p {font-size: 16px;}
     font-size: 20px;
     line-height: 145%;
 }
+
 #gameplay_detail{
     display: inline-block;
     font-size: 20px;
     line-height: 145%;
 }
+
+#about_us{
+    color:black;
+    text-align: center;
+}
+
+#about_texts{
+    display: inline-block;
+    font-size: 25px;
+    line-height: 160%;
+}
+
+#leaderBoard{
+    font-size: 150%;
+    text-align: center;
+    background-color: #f5f6f7;
+}
+#scoreBoard{
+    border-collapse: collapse;
+    border: 1px solid black;
+    text-align: center;
+    width: 100%;
+}
+
+#score_row{
+    border: 1px solid black;
+    font-size: 120%;
+    text-align: center;
+    height: 30px;
+}
+#score_tuple{
+    border: 1px solid black;
+    text-align: center;
+    height: 30px;
+    background-color: lemonchiffon;
+
+}
+
+#score_board_user{
+    border: 1px solid black;
+    text-align: center;
+    height: 40px;
+    background-color: bisque;
+}
+
+
+#player_state{
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+#sign_up_text{
+    font-size: 120%;
+}
+
+
 
 #menu{
   color: #1abc9c !important;

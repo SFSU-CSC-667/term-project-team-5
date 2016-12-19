@@ -10,14 +10,32 @@ block content
   include navbar.pug
   .container-fluid.background-green
     .row.text-center.bottom-buffer
-      img(src='img/logo.jpg' style='width:25%; margin-top:15px').img-circle 
+      img(src='img/logo.jpg' style='width:25%; margin-top:15px').img-circle
     .row
       .col-md-4
         .row#availableGames.text-center
           <span>Available Games</span>
         .row#gamesListContainer.text-center
           ul#gameList.list-unstyled
-      .col-md-4.text-center
-        button#new-game-btn.btn.btn-primary(type='button') Create New Game
+        br
+        p.text-center
+          button#new-game-btn.btn.btn-primary(type='button') Create New Game
+
+      .col-md-4
+        h4#leaderBoard Leaderboard
+        table#scoreBoard
+          tr#score_row
+            th#score_board_user User Name
+            th#score_board_user Games Won
+          tbody#score_board_body
+            each val in topPlayers
+              tr#score_row
+                td#score_tuple #{val.username}
+                td#score_tuple #{val.games_won}
+        #playerStats
+          p#player_state.row Your status:
+
+            span.row Games Won: #{playerStats.games_won}  | Total Games Played: #{playerStats.total_games}
+
       .col-md-4
         include chat.pug

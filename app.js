@@ -60,6 +60,7 @@ app.use('/content', index)
 app.use('/game', game)
 app.use('/lobby', lobby)
 app.use('/rule', index)
+app.use('/about', index)
 
 
 // catch 404 and forward to error handler
