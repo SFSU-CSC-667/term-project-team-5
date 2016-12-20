@@ -79,15 +79,15 @@ $(document).ready(function() {
 const bindEvents = () => {
   $('#Deck a:not(.bound)').addClass('bound').on('click', takeDeckCard);
   $('#DiscardPile a:not(.bound)').addClass('bound').on('click', takeDiscardPileCard);
-  $('#meld_area div:not(.bound)').addClass('bound').on('click', layoffMeldCards);
-
   $('#meldToggle:not(.bound)').addClass('bound').on('click', toggleMeld);
 
   if($('#meldToggle').attr('value') == 'meld_off') {
     $('#PlayerHand div:not(.bound)').addClass('bound').on('click', discardCard);
+    $('#meld_area div').off();
   }
   else if($('#meldToggle').attr('value') == 'meld_on') {
     $('#PlayerHand div:not(.bound)').addClass('bound').on('click', pickMeldCards);
+    $('#meld_area div:not(.bound)').addClass('bound').on('click', layoffMeldCards);
   }
 }
 
@@ -102,11 +102,13 @@ const toggleMeld = () => {
     console.log("Turning meld on")
     $('#meldToggle').attr('value', 'meld_on');
     $('#meldToggle').html('Stop Meld');
+    $('#meld_area *').prop('disabled', false);
   }
   else if($('#meldToggle').attr('value') == 'meld_on') {
     console.log("Turning meld off")
     $('#meldToggle').attr('value', 'meld_off');
     $('#meldToggle').html('Start Meld');
+    $('#meld_area *').prop('disabled', true);
 
     //call stop meld
     stopMeldingCards();
@@ -149,7 +151,7 @@ const success = (json) => {
   var turn = json.turn.toString();
   if(turn.localeCompare(game.playerId) == 0)
   {
-      console.log('here'+ turn)
+    console.log('here'+ turn)
     $('#Deck').removeClass('enabled').addClass('disabled');
     $('#DiscardPile').removeClass('enabled').addClass('disabled');
     $('#PlayerHand').removeClass('disabled').addClass('enabled');
@@ -337,7 +339,7 @@ const updateGame = (json) => {
   discardPile = "<a><div id='card"+json.discard_pile[json.discard_pile.length-1]+"' cardvalue="+json.discard_pile[json.discard_pile.length-1]+" /></a>";
   $('#DiscardPile').html(discardPile)
 
-
+  $('#temp_meld').html("");
   /* Meld area rendering */
   $('#meld-area').empty();
   var meldIds = Object.keys(json.melds);
@@ -379,6 +381,7 @@ const checkTurn = (turn) => {
       $('#DiscardPile').removeClass('enabled').addClass('disabled');
       $('#PlayerHand').removeClass('enabled').addClass('disabled');
       $('#meldToggle').prop( "disabled", true );
+
       messageText = "Opponent's Turn";
     }
     messageBar.innerHTML = messageText;

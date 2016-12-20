@@ -23,6 +23,26 @@ let database = function (db) {
     })
   }
 
+  this.deleteGamePlayer = (gameId) => {
+    return db.none("DELETE FROM gameplayers where game_id = $1", [gameId])
+    .then (() => {
+      console.log('gameId= ' + gameId + ' removed from gameplayers')
+    })
+    .catch ((err) => {
+      console.log(err)
+    })
+  }
+
+  this.deleteGamePlayerByPlayerId = (player_id) => {
+    return db.none("Delete from gameplayers where player_id = $1", [player_id])
+    .then (() => {
+      console.log('playerId= ' + player_id + ' removed from gameplayers')
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+  }
+
   this.getGamePlayer = (gameId) => {
     return db.any("Select player_id from gameplayers where game_id = $1", [gameId])
     .then( (result) => {
@@ -49,7 +69,7 @@ let database = function (db) {
       // response.redirect('/login');
       return result
     })
-    .catch(function (error) {  
+    .catch(function (error) {
       console.log(error);
     });
    }
@@ -235,6 +255,16 @@ let database = function (db) {
     return db.oneOrNone("Select * from gamestate where game_id = $1", [gameId])
     .then( (result) => {
       return result
+    })
+    .catch( (err) => {
+      console.log(err)
+    })
+  }
+
+  this.deleteGameState_JSON = (gameId) => {
+    return db.none("Delete from gamestate where game_id = $1", [gameId])
+    .then( () => {
+      console.log('gameId= ' + gameId + ' removed from gameState')
     })
     .catch( (err) => {
       console.log(err)

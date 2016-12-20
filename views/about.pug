@@ -1,0 +1,18 @@
+extends layout
+
+block head_content
+    title Rummy Rule
+block content
+    include navbar.pug
+
+    #rule.container
+        h1#about_us About Us
+        p#about_texts
+            | We are team 5 in Fall 2016 CSC667/867 taught by John Roberts.
+            | There are four members in our team -- Rajat, Anu, Felix and Qihong.
+            | This real-time Rummy multiplayer game was developed as the term project of this cousre.
+            | The front-end is made with Pug, HTML, CSS, and Bootstrap.
+            | The back-end is made with Express.js, Node.js, Socket.io, and PostgreSQL
+        p#about_texts
+            | Game is available online at: 
+            a(href='https://agile-gorge-78443.herokuapp.com') https://agile-gorge-78443.herokuapp.com

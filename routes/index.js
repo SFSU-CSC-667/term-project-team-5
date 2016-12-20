@@ -73,6 +73,7 @@ module.exports = function(db, io) {
 
   // Logout endpoint
   router.get('/logout', function (request, response) {
+    database.deleteGamePlayerByPlayerId(request.session.player_id)
     request.session.destroy();
     response.render('login',{ errormsg: false});
   });
@@ -80,6 +81,11 @@ module.exports = function(db, io) {
   //rule page
   router.get('/rule', function(request, response) {
     response.render('rummy_rule');
+  });
+
+  //about page
+  router.get('/about', function(request, response) {
+    response.render('about');
   });
 
 

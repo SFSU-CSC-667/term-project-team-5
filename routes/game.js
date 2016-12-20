@@ -23,7 +23,7 @@ module.exports = function(db, io) {
   router.get( '/createGame', ( request, response ) => {
     console.log(request.session.player_id + ' requested new game')
 
-    gameId = generateRandomGameId()
+    const gameId = generateRandomGameId()
     database.createGame(gameId)
     .then ((result) => {
       database.createGamePlayer(gameId, request.session.player_id)
@@ -36,11 +36,10 @@ module.exports = function(db, io) {
 
   /* Route for game room */
   router.get('/:gameId', (req, resp) => {
-    gameId = req.params.gameId
+    const gameId = req.params.gameId
     session = req.session;
     playerId = session.player_id
     username = session.user;
-
     database.verifyPlayer(gameId, playerId)
     .then ( (result) => {
       if(!result) {
@@ -63,7 +62,7 @@ module.exports = function(db, io) {
     //gameId = req.params.gameId
     database.createGamePlayer(req.params.gameId, req.session.player_id)
     .then( () => {
-      resp.redirect('/game/' + gameId)
+      resp.redirect('/game/' + req.params.gameId)
     })
 
   })
@@ -170,6 +169,7 @@ module.exports = function(db, io) {
   /* Socket Operations */
   const game_io = io.of('/game')
   game_io.on('connection', function(socket) {
+    let gameId
     console.log(username + " connected to /game namespace");
 
     //Used to pass playerId to client
@@ -177,6 +177,8 @@ module.exports = function(db, io) {
 
     /* Game Functions */
     const playerJoined = (data) => {
+      gameId = data.gameId
+
       socket.join(data.gameId.toString())
       game_io.to(data.gameId.toString()).emit("user_entered_chat", "User " + username + " has entered the room...");
       io.of('/lobby').emit('chat_received', "User " + username + " has entered game " + data.gameId);
@@ -185,30 +187,45 @@ module.exports = function(db, io) {
       database.getGameState_JSON(data.gameId)
       .then((result) => {
         if(!result) {
-          let playerCount = io.nsps['/game'].adapter.rooms[gameId.toString()].length
+          database.verifyPlayer(data.gameId, playerId)
+          .then ((resultVerification) => {
+            if(!resultVerification) {
+              console.log('player doesnt exist');
+              socket.emit( WAIT, {msg : gameMessages.MSG_UNAUTHORIZED} )
+            }
+            else {
+              let playerCount = io.nsps['/game'].adapter.rooms[gameId.toString()].length
 
-          if(playerCount == MAX_PLAYERS) {
-            initialiseCardsJSON(gameId)
-            .then ((gameJSON) => {
-              game_io.to(data.gameId.toString()).emit( STARTGAME, gameJSON )
-            })
-            database.updateAvailableGames(gameId)
-            .then (() => {
-              broadcastGameList()
-            })
-          }
-          else {
-              console.log(gameMessages.MSG_WAIT +" wait msg")
-            game_io.to(data.gameId.toString()).emit( WAIT, {msg : gameMessages.MSG_WAIT} )
-          }
+              if(playerCount == MAX_PLAYERS) {
+                initialiseCardsJSON(gameId)
+                .then ((gameJSON) => {
+                  game_io.to(data.gameId.toString()).emit( STARTGAME, gameJSON )
+                })
+                database.updateAvailableGames(gameId)
+                .then (() => {
+                  broadcastGameList()
+                })
+              }
+              else {
+                console.log(gameMessages.MSG_WAIT +" wait msg")
+                game_io.to(data.gameId.toString()).emit( WAIT, {msg : gameMessages.MSG_WAIT} )
+              }
+            }
+
+          })
+
         }
         else {
           console.log('player rejoined');
-          let updatedJson = switchPlayers(result.gamejson)
-          updateGame(updatedJson)
+          let updatedJSON = result.gamejson;
+          //if it was the turn of the person who disconnected, he loses his turn
+          if(result.gamejson.turn == playerId) {
+            updatedJSON = switchPlayers(result.gamejson);
+          }
+
+          updateGame(updatedJSON);
         }
       })
-
     }
 
     const initialiseCardsJSON = (gameId) => {
@@ -313,6 +330,7 @@ module.exports = function(db, io) {
       if(isLegalMeld(meldJSON.melds[meldJSON.layoffId])) {
         console.log("IS LEGAL LAYOFF");
         //update to db
+        database.updateGameState_JSON(meldJSON.gameId, meldJSON)
         game_io.to(meldJSON.gameId.toString()).emit(SUCCESSFUL_MELD, meldJSON);
         game_io.to(json.gameId.toString()).emit(GAME_MESSAGE, {msg: gameMessages.MSG_CARDS_LAYOFF_SUCCESS, turn : gameJSON.turn.toString()})
       }
@@ -333,6 +351,7 @@ module.exports = function(db, io) {
       if(isLegalMeld(meldJSON.melds[meldJSON.meldId])) {
         console.log("IS LEGAL MELD");
         //update to db
+        database.updateGameState_JSON(meldJSON.gameId, meldJSON)
         //increment meldId
         meldJSON.meldId++;
         game_io.to(meldJSON.gameId.toString()).emit(SUCCESSFUL_MELD, meldJSON);
@@ -372,12 +391,19 @@ module.exports = function(db, io) {
       if(typeof gameId != 'undefined') {
         game_io.to(gameId).emit("user_left_chat", "User " + session.user + " has left the room...");
 
-        // database.updateAvailableGames(gameId)
-        // .then (() => {
-        //   broadcastGameList()
-        // })
+        database.updateAvailableGames(gameId)
+        .then (() => {
+          broadcastGameList()
+        })
 
          game_io.to(gameId).emit( WAIT, {msg : gameMessages.MSG_DISCONNECT} )
+
+        //  let playerCount = io.nsps['/game'].adapter.rooms[gameId.toString()].length
+
+         if( typeof io.nsps['/game'].adapter.rooms[gameId.toString()] == 'undefined'){
+           database.deleteGamePlayer(gameId)
+           database.deleteGameState_JSON(gameId)
+         }
       }
     });
 
