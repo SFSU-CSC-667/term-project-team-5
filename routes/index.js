@@ -100,12 +100,9 @@ module.exports = function(db, io) {
       request.session.admin = true;
       request.session.player_id = data.player_id;
 
-      console.log(request.session.player_id+ ' logged in');
-
       response.redirect('/lobby');
    });
   }
 
   return router;
 }
-  // module.exports = router

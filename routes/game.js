@@ -21,8 +21,6 @@ module.exports = function(db, io) {
 
   /* Route for create Game */
   router.get( '/createGame', ( request, response ) => {
-    console.log(request.session.player_id + ' requested new game')
-
     const gameId = generateRandomGameId()
     database.createGame(gameId)
     .then ((result) => {
@@ -43,13 +41,10 @@ module.exports = function(db, io) {
     database.verifyPlayer(gameId, playerId)
     .then ( (result) => {
       if(!result) {
-        console.log('player doesnt exist');
         resp.redirect('/lobby')
       }
       else {
-        console.log('player exists');
-        //todo: remove the unnecessary arguments
-        resp.render('game_rajat', { USERNAME:username, name:req.session.user, playerId: req.session.player_id, gameId: gameId})
+        resp.render('game', { USERNAME:username, name:req.session.user, playerId: req.session.player_id, gameId: gameId})
       }
     })
 
@@ -58,8 +53,6 @@ module.exports = function(db, io) {
   /* Route for join Game */
   router.get('/joinGame/:gameId', (req, resp) => {
 
-    //note: gameId is global because of no var/let/anything keyword
-    //gameId = req.params.gameId
     database.createGamePlayer(req.params.gameId, req.session.player_id)
     .then( () => {
       resp.redirect('/game/' + req.params.gameId)
@@ -76,7 +69,6 @@ module.exports = function(db, io) {
   const broadcastGameList = () => {
     database.getAvailableGames()
     .then ( (listGameIds) => {
-      console.log(listGameIds);
       io.of('/lobby').emit( UPDATEGAMELIST, listGameIds )
     })
   }
@@ -86,63 +78,49 @@ module.exports = function(db, io) {
   }
 
   function isLegalMeld(tempMeldCards) {
-    console.log("TEMP: " + tempMeldCards.toString());
     var sortedMeldCards = tempMeldCards.sort(increasingSort);
-    console.log("SORTED:" + sortedMeldCards.toString());
     var length = sortedMeldCards.length;
     var isOrdered = true;
     var isRanked = true;
 
     if(length > 2) {
-    //check if in range
-    //checks that it is not a legal same suit meld
       if((sortedMeldCards[length-1]%NUM_CARDS_IN_SUIT != sortedMeldCards[0]%NUM_CARDS_IN_SUIT))
-    {
-      if(sortedMeldCards[length-1] >= sortedMeldCards[0]+NUM_CARDS_IN_SUIT) {
-        console.log("Checking Legal Meld: NOT IN RANGE");
+      {
+        if(sortedMeldCards[length-1] >= sortedMeldCards[0]+NUM_CARDS_IN_SUIT) {
+          return false;
+        }
+      }
+
+      for(let i = 0; i<length-1; i++) {
+        if(!isInOrderAndSameSuit(sortedMeldCards[i], sortedMeldCards[i+1])) {
+          isOrdered = false;
+          break;
+        }
+      }
+
+      for(let j = 0; j<length-1; j++) {
+        if(!isSameRank(sortedMeldCards[j], sortedMeldCards[j+1])) {
+          isRanked = false;
+          break;
+        }
+      }
+
+      if(isOrdered == false && isRanked == false) {
         return false;
       }
-    }
 
-    //if length is greater than 2 then do these two checks, else check layoff
-    //check if in order: 1s,2s,3s,4s..etc
-    for(let i = 0; i<length-1; i++) {
-      if(!isInOrderAndSameSuit(sortedMeldCards[i], sortedMeldCards[i+1])) {
-        console.log("NOT IN ORDER");
-        isOrdered = false;
-        break;
-      }
-    }
-
-    //if not in order, check if same rank
-    for(let j = 0; j<length-1; j++) {
-      if(!isSameRank(sortedMeldCards[j], sortedMeldCards[j+1])) {
-        console.log("NOT SAME RANK");
-        isRanked = false;
-        break;
-      }
-    }
-
-    if(isOrdered == false && isRanked == false) {
-      return false;
-    }
-
-    console.log("Checking Legal Meld: IS LEGAL");
-    return true;
+      return true;
     }
     return false;
   }
 
   function isInOrderAndSameSuit(card1, card2) {
-    console.log("CARD1: " + card1 + " CARD2: " + card2);
     if(isSameSuit(card1, card2)) {
       if((card1 == card2+1) || (card1 == card2-1)) {
-        console.log("IS ORDER AND SAME SUIT");
         return true;
       }
     }
 
-    console.log("IS NOT IN ORDER AND SAME SUIT");
     return false;
   }
 
@@ -154,12 +132,8 @@ module.exports = function(db, io) {
     return false;
   }
 
-  //edge cases: 11, 12, 13... 24,25,26 ...
   function isSameSuit(card1, card2) {
-    //card1-1 to convert from 1-13 to 0-12 scale so that the edge cards (13) will
-    //be in the same group as 1-12
     if(Math.floor((card1-1)/NUM_CARDS_IN_SUIT) == Math.floor((card2-1)/NUM_CARDS_IN_SUIT)) {
-      console.log("IS SAME SUIT");
       return true;
     }
 
@@ -170,9 +144,7 @@ module.exports = function(db, io) {
   const game_io = io.of('/game')
   game_io.on('connection', function(socket) {
     let gameId
-    console.log(username + " connected to /game namespace");
 
-    //Used to pass playerId to client
     socket.emit(WELCOME, {playerId: playerId})
 
     /* Game Functions */
@@ -190,7 +162,6 @@ module.exports = function(db, io) {
           database.verifyPlayer(data.gameId, playerId)
           .then ((resultVerification) => {
             if(!resultVerification) {
-              console.log('player doesnt exist');
               socket.emit( WAIT, {msg : gameMessages.MSG_UNAUTHORIZED} )
             }
             else {
@@ -207,7 +178,6 @@ module.exports = function(db, io) {
                 })
               }
               else {
-                console.log(gameMessages.MSG_WAIT +" wait msg")
                 game_io.to(data.gameId.toString()).emit( WAIT, {msg : gameMessages.MSG_WAIT} )
               }
             }
@@ -216,9 +186,7 @@ module.exports = function(db, io) {
 
         }
         else {
-          console.log('player rejoined');
           let updatedJSON = result.gamejson;
-          //if it was the turn of the person who disconnected, he loses his turn
           if(result.gamejson.turn == playerId) {
             updatedJSON = switchPlayers(result.gamejson);
           }
@@ -233,43 +201,37 @@ module.exports = function(db, io) {
       return database.getGamePlayer(gameId)
       .then((players) => {
 
-        console.log("Players: " + players[0] + " " + players[1]);
-
         cards = [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
           24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,
           47,48,49,50,51,52]
 
-        cardsShuffled = shuffle(cards.slice(0))
-        deckArray = cardsShuffled.slice(0,31)
-        dicardPileArray = cardsShuffled.slice(31,32)
-        player1HandArray = cardsShuffled.slice(32,42)
-        player2HandArray = cardsShuffled.slice(42,52)
+          cardsShuffled = shuffle(cards.slice(0))
+          deckArray = cardsShuffled.slice(0,31)
+          dicardPileArray = cardsShuffled.slice(31,32)
+          player1HandArray = cardsShuffled.slice(32,42)
+          player2HandArray = cardsShuffled.slice(42,52)
 
-        json = {
-          gameId : gameId,
-          meldId : 0,
-          layoffId : 0,
-          deck : deckArray,
-          discard_pile : dicardPileArray,
-          playerHands : {
-            [players[0].player_id]  : player1HandArray,
-            [players[1].player_id]  : player2HandArray
-          },
-          turn : players[0].player_id,
+          json = {
+            gameId : gameId,
+            meldId : 0,
+            layoffId : 0,
+            deck : deckArray,
+            discard_pile : dicardPileArray,
+            playerHands : {
+              [players[0].player_id]  : player1HandArray,
+              [players[1].player_id]  : player2HandArray
+            },
+            turn : players[0].player_id,
 
-          melds : {}
-        }
-        //rajat
-        //database.addGameStateToDb(json)
-        database.addGameState_JSON(gameId, json)
+            melds : {}
+          }
+          database.addGameState_JSON(gameId, json)
 
-        return json
-      });
-    }
+          return json
+        });
+      }
 
     const updateGame = (json) => {
-      //rajat
-      // database.addGameStateToDb(json);
       database.updateGameState_JSON(json.gameId, json)
       game_io.to(json.gameId.toString()).emit( UPDATE_SERVER, json )
 
@@ -279,15 +241,12 @@ module.exports = function(db, io) {
     const checkPlayerWonTie = (json) => {
 
       if (json.deck.length == 0) {
-        console.log('TIE');
         game_io.to(json.gameId.toString()).emit( TIE, { msg: gameMessages.MSG_TIE } )
         return
       }
 
-      // let playersInGame = Object.keys(json.playerHands)
       Object.keys(json.playerHands).forEach( (player) => {
         if(json.playerHands[player].length == 0) {
-          console.log('WIN');
           game_io.to(json.gameId.toString()).emit( WIN, { playerId: player } )
           database.updateScoreboard(Object.keys(json.playerHands), player)
         }
@@ -318,7 +277,6 @@ module.exports = function(db, io) {
 
       let updatedJson = switchPlayers(json)
 
-      console.log('server got discard request');
       updateGame(updatedJson)
     }
 
@@ -328,19 +286,13 @@ module.exports = function(db, io) {
       let layoffLength = data.layoffLength;
 
       if(isLegalMeld(meldJSON.melds[meldJSON.layoffId])) {
-        console.log("IS LEGAL LAYOFF");
-        //update to db
         database.updateGameState_JSON(meldJSON.gameId, meldJSON)
         game_io.to(meldJSON.gameId.toString()).emit(SUCCESSFUL_MELD, meldJSON);
         game_io.to(json.gameId.toString()).emit(GAME_MESSAGE, {msg: gameMessages.MSG_CARDS_LAYOFF_SUCCESS, turn : gameJSON.turn.toString()})
       }
       else {
-        //why does gameJSON have the melded cards? shouldn't onlymeldJSON have it?
-        console.log("IS NOT LEGAL LAYOFF");
-        //remove the pushed cards
         gameJSON.melds[gameJSON.layoffId].splice(layoffLength*-1, layoffLength);
 
-        console.log(gameJSON.melds[gameJSON.layoffId].toString());
         game_io.to(gameJSON.gameId.toString()).emit(FAILED_MELD, gameJSON);
         game_io.to(json.gameId.toString()).emit(GAME_MESSAGE, {msg: gameMessages.MSG_CARDS_LAYOFF_FAIL, turn : gameJSON.turn.toString()})
       }
@@ -349,28 +301,20 @@ module.exports = function(db, io) {
 
     const cardsMelded = (gameJSON, meldJSON) => {
       if(isLegalMeld(meldJSON.melds[meldJSON.meldId])) {
-        console.log("IS LEGAL MELD");
-        //update to db
         database.updateGameState_JSON(meldJSON.gameId, meldJSON)
-        //increment meldId
         meldJSON.meldId++;
         game_io.to(meldJSON.gameId.toString()).emit(SUCCESSFUL_MELD, meldJSON);
-         game_io.to(json.gameId.toString()).emit(GAME_MESSAGE, {msg: gameMessages.MSG_SUCCESSFUL_MELD, turn : meldJSON.turn.toString()})
+        game_io.to(json.gameId.toString()).emit(GAME_MESSAGE, {msg: gameMessages.MSG_SUCCESSFUL_MELD, turn : meldJSON.turn.toString()})
       }
       else {
-        //why does gameJSON have the melded cards? shouldn't onlymeldJSON have it?
-        console.log("IS NOT LEGAL MELD");
-        gameJSON.melds[gameJSON.meldId].length = 0; //clear last meld
-        console.log(gameJSON.melds[gameJSON.meldId].toString());
+        gameJSON.melds[gameJSON.meldId].length = 0;
         game_io.to(gameJSON.gameId.toString()).emit(FAILED_MELD, gameJSON);
-         game_io.to(json.gameId.toString()).emit(GAME_MESSAGE, {msg: gameMessages.MSG_FAILED_MELD, turn : gameJSON.turn.toString()})
+        game_io.to(json.gameId.toString()).emit(GAME_MESSAGE, {msg: gameMessages.MSG_FAILED_MELD, turn : gameJSON.turn.toString()})
       }
 
     }
 
     const pickedMeldCard = (json) => {
-      //when should i call this database call?
-      //database.addGameStateToDb(json);
       game_io.to(json.gameId.toString()).emit(PICKED_MELD_SUCCESS, json);
     }
 
@@ -386,7 +330,6 @@ module.exports = function(db, io) {
     socket.on(CARDS_LAYOFF, cardsLayoff)
 
     socket.on('disconnect', () => {
-      console.log("user disconnected from /game namespace");
 
       if(typeof gameId != 'undefined') {
         game_io.to(gameId).emit("user_left_chat", "User " + session.user + " has left the room...");
@@ -396,14 +339,12 @@ module.exports = function(db, io) {
           broadcastGameList()
         })
 
-         game_io.to(gameId).emit( WAIT, {msg : gameMessages.MSG_DISCONNECT} )
+        game_io.to(gameId).emit( WAIT, {msg : gameMessages.MSG_DISCONNECT} )
 
-        //  let playerCount = io.nsps['/game'].adapter.rooms[gameId.toString()].length
-
-         if( typeof io.nsps['/game'].adapter.rooms[gameId.toString()] == 'undefined'){
-           database.deleteGamePlayer(gameId)
-           database.deleteGameState_JSON(gameId)
-         }
+        if( typeof io.nsps['/game'].adapter.rooms[gameId.toString()] == 'undefined'){
+          database.deleteGamePlayer(gameId)
+          database.deleteGameState_JSON(gameId)
+        }
       }
     });
 
@@ -411,12 +352,11 @@ module.exports = function(db, io) {
       user = message.substr(0, message.indexOf(' '));
       msg = message.substr(message.indexOf(' ')+1);
 
-      console.log("CHAT:" + message)
       if(typeof gameId != 'undefined') {
         game_io.to(gameId).emit('chat_received', user + ": " + msg);
       }
     });
-});
+  });
 
 
 return router

@@ -34,10 +34,8 @@ module.exports = function(db, io) {
   });
 
   io.on('connection', function(socket) {
-    console.log("A user connected to /");
 
     socket.on('disconnect', function() {
-    console.log("user disconnected from /");
     });
   });
 
@@ -49,19 +47,15 @@ module.exports = function(db, io) {
       broadcastGameList(lobby_io);
     }
 
-    console.log(username + " connected to /lobby namespace");
-
     lobby_io.emit("user_entered_chat", "User " + username + " has entered the room...");
 
     socket.on('chat_sent', function(message) {
-     //not needed //user = message.substr(0,message.indexOf(' '));
-     msg = message.substr(message.indexOf(' ')+1);
+      msg = message.substr(message.indexOf(' ')+1);
 
       lobby_io.emit('chat_received', username + ": " + msg);
     });
 
     socket.on('disconnect', function() {
-      console.log("user disconnected from /lobby namespace");
       lobby_io.emit("user_left_chat", "User " + username + " has left the room...");
     });
   });
@@ -69,7 +63,6 @@ module.exports = function(db, io) {
   const broadcastGameList = (socket) => {
     database.getAvailableGames()
     .then ( (listGameIds) => {
-      console.log(listGameIds);
       socket.emit( UPDATEGAMELIST, listGameIds )
     })
   }

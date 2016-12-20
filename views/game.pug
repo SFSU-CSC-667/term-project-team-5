@@ -5,19 +5,34 @@ block head_content
   script(type="text/javascript", src="/socket.io/socket.io.js")
   script(type="text/javascript", src="/js/chat.js")
   script(type="text/javascript", src="/js/bundle.js")
-  link(href='https://fonts.googleapis.com/css?family=Montserrat', rel='stylesheet')
 
 block content
   include navbar.pug
-  // First Container
-  #game_space.col-md-9.container-fluid.bg-1.text-center
-    h3#margin.margin Player 2
+  #gameArea
+    #game_space.col-md-9.container-fluid.bg-1.text-center
 
-    h3#you You
+      #OpponentHand
+      .col-md-12
+      .col-md-5
+      #Deck.col-md-1
+      #DiscardPile.col-md-6
 
-  #chat_screen.col-md-3.container-fluid.bg-1.text-center
-    h3#chat_font Chat
-    include chat.pug
-    button#meld.btn.btn-info.btn-sm.buy-button(type='submit') Meld/layoff
-    button#cancel.btn.btn-info.btn-sm.buy-button(type='submit') Cancel
-  p #{msg}
+      #Deck
+
+      button#meldToggle.btn.btn-warning.btn-sm(type='button', value='meld_off') Start Meld
+      #divider
+      br
+      br
+      #Message
+      br
+      p -MELD-
+      #temp_meld
+      #PlayerHand
+
+    #chat.col-md-3
+      .row
+        include chat.pug
+      #meld_area.row
+        p Melded Cards
+  #waitingArea
+    #waitMessage.alert.alert-danger.text-center(role='alert')
