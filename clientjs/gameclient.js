@@ -19,19 +19,10 @@ const intializeSocket = () => {
 }
 
 const displayWait = (data) => {
- $('#gameArea').hide();
- $('#waitingArea').show();
- $('#waitMessage').html(data.msg);
-/*
- var form = document.getElementById("waitingArea");
- var alertDiv = document.createElement("DIV");
- var alertText = document.createTextNode("Welcome !\n Waiting for other player to join.");
-
- alertDiv.classList.add("alert","alert-danger", "text-center");
- alertDiv.setAttribute("role", "alert");
- alertDiv.appendChild(alertText);
- form.appendChild(alertDiv);
- */
+  $('#gameArea').hide();
+  $('#waitingArea').show();
+  $('#waitMessage').html(data.msg);
+  
 }
 
 const displayWin = (data) => {
@@ -156,7 +147,7 @@ const discardCard = (event) => {
   if ($('#PlayerHand').hasClass('disabled')) return;
   var card = parseInt($(event.target).attr('cardvalue'));
 
- if(card >=1 && card <= 52) {
+  if(card >=1 && card <= 52) {
     var indexOfCardToRemove = gameJSON.playerHands[game.playerId].indexOf(parseInt(card));
   }
 
@@ -212,9 +203,9 @@ const stopMeldingCards = () => {
 }
 
 const changeMessage = (msgJson) => {
-    var messageBar = document.getElementById("Message");
-    if(msgJson.turn.localeCompare(game.playerId)==0)
-     messageBar.innerHTML = msgJson.msg;
+  var messageBar = document.getElementById("Message");
+  if(msgJson.turn.localeCompare(game.playerId)==0)
+  messageBar.innerHTML = msgJson.msg;
 
 }
 const emitUpdate = () => {
@@ -226,7 +217,7 @@ const onSuccessfulMeld = (json) => {
   //reset temp meld
   $('#temp_meld').empty();
   tempMeldCards.length = 0;
- // updateMeldArea(json);
+  // updateMeldArea(json);
   updateGame(json);
   success(json);
 }
@@ -334,28 +325,28 @@ const updateGame = (json) => {
 /*End Socket event handlers */
 
 const checkTurn = (turn) => {
-    var messageBar = document.getElementById("Message");
-    var messageText = '';
+  var messageBar = document.getElementById("Message");
+  var messageText = '';
 
-    if(turn.localeCompare(game.playerId)==0)
-    {
-      $('#Deck').removeClass('disabled').addClass('enabled');
-      $('#DiscardPile').removeClass('disabled').addClass('enabled');
-      $('#PlayerHand').removeClass('enabled').addClass('disabled');
-      $('#meldToggle').prop( "disabled", true );
+  if(turn.localeCompare(game.playerId)==0)
+  {
+    $('#Deck').removeClass('disabled').addClass('enabled');
+    $('#DiscardPile').removeClass('disabled').addClass('enabled');
+    $('#PlayerHand').removeClass('enabled').addClass('disabled');
+    $('#meldToggle').prop( "disabled", true );
 
-      messageText = "Your turn. Choose a card from deck or discard pile.";
-    }
-    else {
+    messageText = "Your turn. Choose a card from deck or discard pile.";
+  }
+  else {
 
-      $('#Deck').removeClass('enabled').addClass('disabled');
-      $('#DiscardPile').removeClass('enabled').addClass('disabled');
-      $('#PlayerHand').removeClass('enabled').addClass('disabled');
-      $('#meldToggle').prop( "disabled", true );
+    $('#Deck').removeClass('enabled').addClass('disabled');
+    $('#DiscardPile').removeClass('enabled').addClass('disabled');
+    $('#PlayerHand').removeClass('enabled').addClass('disabled');
+    $('#meldToggle').prop( "disabled", true );
 
-      messageText = "Opponent's Turn";
-    }
-    messageBar.innerHTML = messageText;
+    messageText = "Opponent's Turn";
+  }
+  messageBar.innerHTML = messageText;
 }
 
 function addLogout() {
