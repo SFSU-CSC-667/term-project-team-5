@@ -17,7 +17,7 @@ Go to http://localhost:3000 on browser
 ```
 ##Game also available online at:
 
-[Rummy Game on Heroku](https://agile-gorge-78443.herokuapp.com "Heroku Rummy Game")
+[Rummy Game on Heroku](https://rummygame.herokuapp.com "Heroku Rummy Game")
 
 ###Presenation:
 
