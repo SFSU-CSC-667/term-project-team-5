@@ -63,7 +63,6 @@ $(document).ready(function() {
 
   socket.on(STARTGAME, (json) => {
     gameJSON = json
-    console.log("Game JSON: " + json);
     updateGame(json);
   })
 
@@ -100,13 +99,11 @@ const toggleMeld = () => {
   $('#PlayerHand div').off();
 
   if($('#meldToggle').attr('value') == 'meld_off') {
-    console.log("Turning meld on")
     $('#meldToggle').attr('value', 'meld_on');
     $('#meldToggle').html('Stop Meld');
     $('#meld_area *').prop('disabled', false);
   }
   else if($('#meldToggle').attr('value') == 'meld_on') {
-    console.log("Turning meld off")
     $('#meldToggle').attr('value', 'meld_off');
     $('#meldToggle').html('Start Meld');
     $('#meld_area *').prop('disabled', true);
@@ -122,10 +119,8 @@ const takeDiscardPileCard = (event) => {
   if ($('#DiscardPile').hasClass('disabled')) return;
 
   var card = $(event.target).attr('cardvalue');
-  console.log('player ' + game.playerId + ' clicked ' + card);
 
   var cardId = gameJSON.discard_pile.pop()
-    console.log('player ' + game.playerId + ' clicked cardID ' + card);
 
   gameJSON.playerHands[game.playerId].push(cardId)
 
@@ -137,10 +132,8 @@ const takeDeckCard = (event) => {
   if ($('#Deck').hasClass('disabled')) return;
 
   var card = $(event.target).attr('cardvalue');
-  console.log('player ' + game.playerId + ' clicked ' + card);
 
   var cardId = gameJSON.deck.pop()
-    console.log('player ' + game.playerId + ' clicked cardID ' + card);
 
   gameJSON.playerHands[game.playerId].push(cardId)
 
@@ -152,7 +145,6 @@ const success = (json) => {
   var turn = json.turn.toString();
   if(turn.localeCompare(game.playerId) == 0)
   {
-    console.log('here'+ turn)
     $('#Deck').removeClass('enabled').addClass('disabled');
     $('#DiscardPile').removeClass('enabled').addClass('disabled');
     $('#PlayerHand').removeClass('disabled').addClass('enabled');
@@ -163,22 +155,15 @@ const success = (json) => {
 const discardCard = (event) => {
 
   if ($('#PlayerHand').hasClass('disabled')) return;
-  console.log("Discarding a card");
   var card = parseInt($(event.target).attr('cardvalue'));
-  console.log("TYPE OF:" + typeof card);
 
  if(card >=1 && card <= 52) {
     var indexOfCardToRemove = gameJSON.playerHands[game.playerId].indexOf(parseInt(card));
-    console.log('Index of card to remove: ' + indexOfCardToRemove);
-    console.log("ARRAY TO STRING:" + gameJSON.playerHands[game.playerId].toString());
   }
-
-  console.log('player ' + game.playerId + ' clicked ' + card);
 
   //remove from player's hand
   gameJSON.playerHands[game.playerId].splice(indexOfCardToRemove, 1);
   //add to deck
-  console.log("DISCARD PILE BEFORE:" + gameJSON.discard_pile.toString());
   gameJSON.discard_pile.push(card);
 
   socket.emit( DISCARD_CARD, gameJSON)
@@ -186,13 +171,10 @@ const discardCard = (event) => {
 }
 
 const layoffMeldCards = (event) => {
-  console.log("Laying off cards");
   //regex to get number from meld id div
   var regexDigit = /\d+/;
   var cardsDivid = $(event.target.parentNode).attr('id');
-  console.log("div id " + cardsDivid);
   var meldId = parseInt(cardsDivid.match(regexDigit));
-  console.log("MELD ID: " + meldId);
 
   var layoffJSON = gameJSON;
   layoffJSON.layoffId = meldId;
@@ -200,7 +182,6 @@ const layoffMeldCards = (event) => {
     layoffJSON.melds[meldId].push(card);
   });
 
-  console.log("LAYOFF JSON: " + layoffJSON.toString());
   socket.emit(CARDS_LAYOFF, { meldJSON:layoffJSON, gameJSON:gameJSON, layoffLength:tempMeldCards.length });
 
   bindEvents();
@@ -208,10 +189,8 @@ const layoffMeldCards = (event) => {
 }
 
 const pickMeldCards = (event) => {
-  console.log("Picking meld cards");
 
   var card = $(event.target).attr('cardvalue');
-  console.log("TYPE OF:" + typeof card);
 
   $('#temp_meld').append("<div id='card"+card+"' cardvalue="+card+" />")
   tempMeldCards.push(parseInt(card));
@@ -224,12 +203,10 @@ const pickMeldCards = (event) => {
 }
 
 const stopMeldingCards = () => {
-  console.log(tempMeldCards.toString());
 
   meldJSON = gameJSON;
   meldJSON.melds[gameJSON.meldId] = tempMeldCards;
 
-  console.log("MELD JSON: " + meldJSON.toString());
   socket.emit(CARDS_MELDED, gameJSON, meldJSON);
 
   bindEvents();
@@ -250,14 +227,12 @@ const onSuccessfulMeld = (json) => {
   //reset temp meld
   $('#temp_meld').empty();
   tempMeldCards.length = 0;
-  console.log("TEMP MELD GETTING DELEATED");
  // updateMeldArea(json);
   updateGame(json);
   success(json);
 }
 
 const onFailedMeld = (json) => {
-  console.log("FAILED TEMP MELD GETTING DELETED");
 
   //try to layoff it
   //else fail it
@@ -365,8 +340,6 @@ const checkTurn = (turn) => {
 
     if(turn.localeCompare(game.playerId)==0)
     {
-      console.log(game.playerId + ": It's my turn!");
-      console.log("Turn: " + turn);
       $('#Deck').removeClass('disabled').addClass('enabled');
       $('#DiscardPile').removeClass('disabled').addClass('enabled');
       $('#PlayerHand').removeClass('enabled').addClass('disabled');
@@ -375,8 +348,6 @@ const checkTurn = (turn) => {
       messageText = "Your turn. Choose a card from deck or discard pile.";
     }
     else {
-      console.log(game.playerId + ": It's not my turn!");
-      console.log("Turn: " + turn);
 
       $('#Deck').removeClass('enabled').addClass('disabled');
       $('#DiscardPile').removeClass('enabled').addClass('disabled');
