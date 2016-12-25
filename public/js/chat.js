@@ -4,7 +4,7 @@ $(document).ready(function () {
   $('.submit_on_enter').keydown(function(event) {
     // enter has keyCode = 13, change it if you want to use another button
     if (event.keyCode == 13) {
-	    event.preventDefault();
+      event.preventDefault();
       sendMessage();
 
       return false;
@@ -24,32 +24,29 @@ function sendMessage() {
   var message = document.getElementById("chat-input").value;
 
   //add username to message
-	message = document.getElementById("target").value + " " + message;
+  message = document.getElementById("target").value + " " + message;
   document.getElementById("chat-input").value = "";
-  
-  console.log("MESSAGE:" + message);
+
   socket.emit('chat_sent', message);
 }
 
 function sendChatMessage(message) {
-    var liNode, liText, ulMessages, chat_box;
-    console.log("Called default once: " + message);
+  var liNode, liText, ulMessages, chat_box;
 
-    chat_box = document.getElementById("chat-box");
-    ulMessages = document.getElementById("messages");
+  chat_box = document.getElementById("chat-box");
+  ulMessages = document.getElementById("messages");
 
-    liNode = document.createElement("LI");
-    liText = document.createTextNode(message);
-    liNode.appendChild(liText);
+  liNode = document.createElement("LI");
+  liText = document.createTextNode(message);
+  liNode.appendChild(liText);
 
-    ulMessages.appendChild(liNode);
-    
-    chat_box.scrollTop = chat_box.scrollHeight; //scrolls chat down
+  ulMessages.appendChild(liNode);
+
+  chat_box.scrollTop = chat_box.scrollHeight; //scrolls chat down
 }
 
 function sendChatSystemMessage(message) {
   var liNode, liText, ulMessages, chat_box;
-   console.log("Called system once: " + message);
 
   chat_box = document.getElementById("chat-box");
   ulMessages = document.getElementById("messages");
@@ -60,6 +57,6 @@ function sendChatSystemMessage(message) {
   liNode.appendChild(liText);
 
   ulMessages.appendChild(liNode);
-    
+
   chat_box.scrollTop = chat_box.scrollHeight; //scrolls chat down
 }
