@@ -1,5 +1,5 @@
 ![Rummy](https://github.com/SFSU-CSC-667/term-project-team-5/blob/dev/public/img/logo.jpg "Rummy Game")
-#Rummy Game
+#Rummy Game :spades::hearts::clubs::diamonds:
 A Rummy card game made for CSC 667/867
 
 ###For installing and running server:
@@ -13,12 +13,11 @@ npm run start
 
 ###For playing game:
 ```
-Go to http://localhost:3000 on browser
+Go to (http://localhost:3000) on browser
 ```
 ##Game also available online at:
-```
-https://agile-gorge-78443.herokuapp.com
-```
+
+[Rummy Game on Heroku](https://agile-gorge-78443.herokuapp.com "Heroku Rummy Game")
 
 ###Presenation:
 
