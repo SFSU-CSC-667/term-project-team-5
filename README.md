@@ -17,11 +17,17 @@ Go to http://localhost:3000 on browser
 ```
 ##Game also available online at:
 ```
-[Heroku](https://agile-gorge-78443.herokuapp.com)
+https://agile-gorge-78443.herokuapp.com
 ```
+
+###Presenation:
+
+https://github.com/SFSU-CSC-667/term-project-team-5/blob/master/Presenatation/Real-time%20MultiPlayer.pptx
 
 ###Collaborators:
 1. Felix
 2. [Rajat](https://github.com/RajatArora08)
 3. Qihong
 4. Anu
+
+Note: Initial 3 commits made with Rajat's other Git account

@@ -4,46 +4,18 @@ block head_content
     title Rummy Rule
 block content
     include navbar.pug
-    #rule.container
-        h1#rummy_rule Rummy Rules
-        p#rule_texts
-            | Rummy is a classic card game where the objective is to be the first to get rid of all your cards.
-            | by creating melds, which can either be sets, three or four cards of the same rank, e.g.
-            img#minimeld1(src='../img/meld1.png')
-            |                 or runs, which are three or more cards of the same suit in a sequence, e.g.
-            img#minimeld2(src='../img/meld2.png')
-            |                 Aces are low, and sequences can not wrap around. There are many, many variations of Rummy that
-            |                 exist, this particular implementation is Basic Rummy, or Traditional Rummy.
-        h1#rummy_rule Gameplay
-        p#rule_texts
-            | The game can have 2,3 or 4 players. If there are only two players they each get 10 cards,
-            | if there are three or four player then each player gets 7 cards.
-            | After the cards are dealt the deck is put facedown on the table,
-            | and one card face up next to it, to start the discard pile.
-            | The player to the left of the dealer starts the hand, and gameplay goes as follows:
-        ol#gameplay_detail
-            li
-                | Start your turn by drawing card from either the deck or the discard pile.
-            li
-                | If possible, lay down a meld on the table. You are allowed to
-                | put down many melds in each round (in some versions only one meld per turn is allowed).
-            li
-                | Lay off cards on existing melds. For example if there's
-                img#minimeld1(src='../img/meld3.png')
-                |                     on the table, and you have the
-                img#minimeld4(src='../img/meld4.png')
-                | you may lay it off on the meld.
-                |                     Who put the meld down in the first place doesn't matter, as soon as a meld is on the table it doesn't
-                |                     belong to anyone anymore, anyone can use it. You are allowed to lay off as many cards as you want,
-                |                     and you may always lay off, also when you haven't put down a meld in the round.
-            li
-                | End your turn by discarding one card onto the discard pile. If you drew from the discard pile
-                | you can not discard that card in the same round. If you only have one card left to discard you
-                | put it face down on the discard pile and win the game.
-        p#rule_texts
-            | The game continues like this until one player has finished all the cards from their hand. A player is not
-            | required to end the game by discarding a card onto the discard pile, if he can lay down all his cards in melds, or lay them off on existing melds the may do so, and will win the game.
-        h1#rummy_rule Scoring
-        p#rule_texts If a player won one game, one credit will be added to player's record.
+    div.background-green
+      #rule.container
+          h1#rummy_rule Rummy Rules
+          p#rule_texts
+              | Rummy is a card game similar to Mahjong where the objective is to be the first player to discard your entire hand.
+              | Discarding your cards is possible by creating combinations or sets of three or four cards of either the same rank (ie. Jack of hearts, Jack of Spades, Jack of Clubs) or of the same suit in a sequence (ie. Jack of Hearts, Queen of Hearts, King of Hearts).
+          h1#rummy_rule Gameplay
+          p#rule_texts
+              | This version of Rummy is a two player game. Each player receives 10 cards upon the game starting.
+              | The current turn's player will draw a card either from the discard pile or the deck pile. Afterwards, the player can either beging melding their cards or signal the end of their turn by discarding one card.
+              | The next player will follow suit until one player discards their final card or creates a meld to rid their entire hand and win the game.
+          h1#rummy_rule Scoring
+          p#rule_texts If a player wins a game, one credit will be added to the player's record. With enough wins, they will appear on the front page leaderboard.
 
 
